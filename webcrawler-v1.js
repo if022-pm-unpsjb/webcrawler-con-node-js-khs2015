@@ -14,16 +14,17 @@ const cheerio = require('cheerio');
 var baseURL = 'https://www.google.com.ar/';
 //var baseURL = 'https://www.youtube.com/';
 
-function webCrawler(baseURL, deep) {
+function webCrawler(baseURL, deep, indentation) {
 	request(
 		baseURL, 
 		function (error, response, html) {
+
 			// imprimo la URL base
-			console.log("\nURL: " + baseURL);
+			console.log(indentation + "URL: " + baseURL);
 
 			// verifico que no haya errores y que la conexion a baseURL fue exitosa
 			if (!error && response.statusCode == 200) {
-				console.log("Conexión exitosa: HTTP Response " + response.statusCode);
+				console.log(indentation + "Conexión exitosa: HTTP Response " + response.statusCode);
 				// variable donde se va a almacenar el valor de un atributo href (el enlace)
 				var hrefValue = undefined;
 
@@ -34,7 +35,7 @@ function webCrawler(baseURL, deep) {
 			    var $ = cheerio.load(html);
 			    
 			    // imprimo la cantidad de enlaces
-			    console.log("Cantidad de enlaces (absolutos y relativos): " + $('[href]').length);
+			    console.log(indentation + "Cantidad de enlaces (absolutos y relativos): " + $('[href]').length);
 
 			    // seleeciona todos los elementos que tengan como atributo href (enlace)
 			    // e itero por cada elemento
@@ -48,28 +49,29 @@ function webCrawler(baseURL, deep) {
 						if (hrefValue != undefined) {
 
 							if (hrefValue.indexOf('/', 0) == 0) {
-								console.log("\t" + i + " - relativo: " + hrefValue);
+								console.log(indentation + "\tEnlace " + (i + 1) + " - relativo: " + hrefValue);
 
 								// esto hay que probarlo, puede que no sea tan simple
 								relativeURL = baseURL + hrefValue.slice(1);
 								if (deep == true) {
-									webCrawler(relativeURL, false);
+									webCrawler(relativeURL, false, (indentation + "\t"));
 								}
 
 							} else {
-								console.log("\t" + i + " - absoluto: " + hrefValue);
+								console.log(indentation + "\tEnlace " + (i + 1) + " - absoluto: " + hrefValue);
 							}
 						}
 			    	}
 			    );
+			    console.log("\n");
 		  	} else {
-		  		console.log("Conexión fallida: HTTP Response " + response.statusCode);
+		  		console.log(indentation + "Conexión fallida: HTTP Response " + response.statusCode);
 		  	}
 		}
 	);
 }
 
-webCrawler(baseURL, true);
+webCrawler(baseURL, true, "");
 
 /*
 function callback_e(err, res, body) {
